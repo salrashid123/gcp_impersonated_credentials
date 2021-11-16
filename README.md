@@ -105,7 +105,7 @@ though you can use limited bq functions through gcloud right now and then use gc
  gcloud alpha bq jobs list
 ```
 
-### ADC
+#### ADC
 
 Tested with ADC variants:
 
@@ -141,7 +141,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=`pwd`/svc-src.json
 - `dotnet`: fail
 
 
-* Workload Identity Federation (OIDC)
+#### Workload Identity Federation (OIDC)
 
 
 * [Exchange Generic OIDC Credentials for GCP Credentials using GCP STS Service](https://github.com/salrashid123/gcpcompat-oidc)
@@ -194,7 +194,7 @@ gcloud iam service-accounts add-iam-policy-binding \
   ERROR: Error reading credential file from location /path/to/sts-creds.json: Error creating credential from JSON. Unrecognized credential type external_account
   ```
 
-* Compute Engine Credentials (metadata server)
+#### Compute Engine Credentials (metadata server)
 
 ```bash
 curl -s -H 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email
@@ -225,6 +225,7 @@ gcloud iam service-accounts add-iam-policy-binding \
   ERROR: Only ServiceAccountCredential and UserCredential support impersonation.
   ```
 
+---
 
 #### python
 
