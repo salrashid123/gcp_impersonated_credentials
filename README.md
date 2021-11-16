@@ -1,4 +1,4 @@
-# Using ImpersonatedCredentials for Google Cloud APIs
+# Using ImpersonatedCredentials for Google Cloud APIs and IDTokens
 
 Samples which demonstrate getting and using impersonated credentials for Google Cloud Service Accounts.  
 
