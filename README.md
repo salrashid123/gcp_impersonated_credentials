@@ -195,7 +195,7 @@ gcloud iam service-accounts add-iam-policy-binding \
   ```
 
 
-NOTE: if you just need an `id_token` for SA1 and workloadidentity, you can directly acquire that using the [IAMCredentials.generateIdToken](https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken) API call.
+>> **NOTE:** if you just need an `id_token` for SA1 and workloadidentity, you can directly acquire that using the [IAMCredentials.generateIdToken](https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken) API call.
 
 However, to do that, you must NOT enable impersonation (`service_account_impersonation_url`) on the workload identity configuration:
 
@@ -219,7 +219,7 @@ Since very specific APIs such as GCS and IAMCredentials API can _directly_ use f
 
 However, to do that, you must allow the federated identity to impersonate an SA.  In the following example, we're enabling the federated OIDC identity to directly impersonate:
 
-```json
+```bash
 gcloud iam service-accounts add-iam-policy-binding     target-serviceaccount@fabled-ray-104117.iam.gserviceaccount.com  \
     --member='principal://iam.googleapis.com/projects/1071284184436/locations/global/workloadIdentityPools/oidc-pool-1/subject/alice@domain.com' \
 	--role='roles/iam.serviceAccountTokenCreator'
