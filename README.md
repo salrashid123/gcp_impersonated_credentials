@@ -194,6 +194,59 @@ gcloud iam service-accounts add-iam-policy-binding \
   ERROR: Error reading credential file from location /path/to/sts-creds.json: Error creating credential from JSON. Unrecognized credential type external_account
   ```
 
+
+NOTE: if you just need an `id_token` for SA1 and workloadidentity, you can directly acquire that using the [IAMCredentials.generateIdToken](https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken) API call.
+
+However, to do that, you must NOT enable impersonation (`service_account_impersonation_url`) on the workload identity configuration:
+
+For example, with OIDC federation, do not specify the `service_account_impersonation_url` parameter in the ADC config file
+
+```json
+{
+  "type": "external_account",
+  "audience": "//iam.googleapis.com/projects/1071284184436/locations/global/workloadIdentityPools/oidc-pool-1/providers/oidc-provider-1",
+  "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+  "token_url": "https://sts.googleapis.com/v1/token",
+  "credential_source": {
+    "file": "/tmp/oidccred.txt"
+  }
+}
+```
+
+You can omit that parameter by not specifying `--service-account=` when creating a config (`gcloud beta iam workload-identity-pools create-cred-config`)
+
+Since very specific APIs such as GCS and IAMCredentials API can _directly_ use federation without impersonation (see [Using Federated or IAM Tokens](https://github.com/salrashid123/gcpcompat-oidc#using-federated-or-iam-tokens)), you can apply the federated token to `generateIdToken`.
+
+However, to do that, you must allow the federated identity to impersonate an SA.  In the following example, we're enabling the federated OIDC identity to directly impersonate:
+
+```json
+gcloud iam service-accounts add-iam-policy-binding     target-serviceaccount@fabled-ray-104117.iam.gserviceaccount.com  \
+    --member='principal://iam.googleapis.com/projects/1071284184436/locations/global/workloadIdentityPools/oidc-pool-1/subject/alice@domain.com' \
+	--role='roles/iam.serviceAccountTokenCreator'
+```
+
+for more information, see 
+
+* [Exchange Generic OIDC Credentials for GCP Credentials using GCP STS Service](https://github.com/salrashid123/gcpcompat-oidc)
+* [Exchange AWS Credentials for GCP Credentials using GCP STS Service](https://github.com/salrashid123/gcpcompat-aws)
+
+Once that's done, acquire the source federation credentials, (in the case of OIDC, its embedded in `/tmp/oidccred.txt` file above), then enable ADC env var (`GOOGLE_APPLICATION_CREDENTIALS=/path/to/sts-creds.json`)
+
+and finally use the iam api:
+
+```python
+#!/usr/bin/python
+from google.cloud import  iam_credentials_v1
+
+project_id = 'fabled-ray-104117'
+client = iam_credentials_v1.services.iam_credentials.IAMCredentialsClient()
+target_credentials = 'target-serviceaccount@{}.iam.gserviceaccount.com'.format(project_id)
+name = "projects/-/serviceAccounts/{}".format(target_credentials)
+id_token = client.generate_id_token(name=name,audience='https://foo.bar', include_email=True)
+
+print(id_token.token)
+```
+
 #### Compute Engine Credentials (metadata server)
 
 ```bash

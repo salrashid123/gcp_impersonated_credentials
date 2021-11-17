@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' "> 
+    <PackageReference Include="Google.Cloud.Iam.Credentials.V1" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>
