@@ -304,7 +304,9 @@ While [Impersonated Credentials Client](https://github.com/googleapis/google-aut
 - [Impersonated credentials should implement IdTokenProvider interface](https://github.com/googleapis/google-auth-library-nodejs/issues/1318)
 
 
->> the workaround here is is the same sample documented in the above git issues.  I'll update this repo once the code is merged
+>> the workaround here is the same sample documented in the above git issues and within [node/README.md](node/README.md).
+
+
 
 
 #### dotnet

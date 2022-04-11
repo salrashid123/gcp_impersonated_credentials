@@ -51,7 +51,6 @@ async function main() {
 
   // now construct workaround to use GCS client library
   const oauth2Client = new OAuth2Client();
-
   oauth2Client.refreshHandler = async () => {
     const refreshedAccessToken = await targetClient.getAccessToken();
     return {
@@ -64,26 +63,7 @@ async function main() {
   // for the access_token and the sign() override as well
   const storageOptions = {
     projectId,
-    authClient: {
-      getCredentials: async () => {
-        return {
-          client_email: targetPrincipal
-        }
-      },
-      request: opts => {
-        return oauth2Client.request(opts);
-      },
-      sign: (blobToSign) => {
-        return targetClient.sign(blobToSign);
-      },
-      authorizeRequest: async opts => {
-        opts = opts || {};
-        const url = opts.url || opts.uri;
-        const headers = await oauth2Client.getRequestHeaders(url);
-        opts.headers = Object.assign(opts.headers || {}, headers);
-        return opts;
-      },
-    },
+    authClient: oauth2Client,
   };
 
   const storage = new Storage(storageOptions);
@@ -91,22 +71,12 @@ async function main() {
   // use the gcs client to get an object
   const file = storage.bucket(bucketName).file('foo.txt');
   await file.download(function (err, contents) {
-    console.log("file err: " + err);
-    console.log("file data: " + contents);
+    if (err) {
+      console.log("file err: " + err);
+    } else {
+      console.log("file data: " + contents);
+    }
   });
-
-  // now use the gcs client to sign a url
-  const options = {
-    version: 'v4',
-    action: 'read',
-    expires: Date.now() + 10 * 60 * 1000,
-  };
-
-  const [signed_url] = await storage
-    .bucket('fabled-ray-104117-test')
-    .file('foo.txt')
-    .getSignedUrl(options);
-  console.log(signed_url)
 
   const authHeaders = await targetClient.getRequestHeaders();
   const url = 'https://storage.googleapis.com/storage/v1/b/' + bucketName + '/o/foo.txt'
@@ -114,7 +84,7 @@ async function main() {
   console.log(resp.data);
 
 
-  // then get an ID Token
+  // // then get an ID Token
   let idClient = new IdTokenClient({
     targetAudience: 'https://foo.bar',
     idTokenProvider: targetClient
