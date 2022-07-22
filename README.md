@@ -353,6 +353,7 @@ The following shows the audit logs that would get generated as a result of the I
 Note that the logs span two different resource.types in Cloud logging (IAM and the resource in context).  That means to see them together, just run
 a query with a filter like:
 
+
 ```
 resource.type="service_account" OR resource.type="gcs_bucket"
 ```
@@ -365,8 +366,23 @@ And the actual resource request.
 
 - ![images/api_request.png](images/api_request.png)
 
-Notice that the resource API call lacks any information that would indicate who the original caller was (i,e serviceAccount A). 
+Notice that the api request contains the **ORIGINAL** user that is impersonating the service account 
 
+```json
+    "authenticationInfo": {
+      "principalEmail": "target-serviceaccount@fabled-ray-104117.iam.gserviceaccount.com",
+      "serviceAccountDelegationInfo": [
+        {
+          "firstPartyPrincipal": {
+            "principalEmail": "admin@esodemoapp2.com"
+          }
+        }
+      ]
+    },
+```
+
+
+For more information, see  [Audit logs for service accounts ](https://cloud.google.com/iam/docs/audit-logging/examples-service-accounts#auth-as-service-account)
 
 
 ### References
