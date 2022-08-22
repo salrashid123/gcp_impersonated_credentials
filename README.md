@@ -298,16 +298,10 @@ see:
 
 #### nodeJS
 
-While [Impersonated Credentials Client](https://github.com/googleapis/google-auth-library-nodejs#impersonated-credentials-client) are already around, it is not supported in all gcp client libraries:
 
-- [Allow setting authentication client for google-cloud libraries ](https://github.com/googleapis/google-auth-library-nodejs/issues/1210)
-- [Impersonated credentials should implement IdTokenProvider interface](https://github.com/googleapis/google-auth-library-nodejs/issues/1318)
+Requires at least [google-auth-library-nodejs@v8.3.0](https://github.com/googleapis/google-auth-library-nodejs/releases/tag/v8.3.0)
 
-
->> the workaround here is the same sample documented in the above git issues and within [node/README.md](node/README.md).
-
-
-
+- [Impersonated credentials should implement sign() capability](https://github.com/googleapis/google-auth-library-nodejs/issues/1443)
 
 #### dotnet
 
@@ -381,6 +375,25 @@ Notice that the api request contains the **ORIGINAL** user that is impersonating
     },
 ```
 
+>> Note: if chained delegation is used (i.,e `user->sa1->sa2->resource`), you will see multiple `firstPartyPrincipal` values.  The first `firstPartyPrincipal` will  be the most recent service account used in the chain.  In other words, the order here matters:
+
+
+```json
+    "authenticationInfo": {
+      "principalEmail": "sa2@project.iam.gserviceaccount.com",
+      "serviceAccountDelegationInfo": [
+        {
+          "firstPartyPrincipal": {
+            "principalEmail": "sa1@project.iam.gserviceaccount.com"
+          },
+          "firstPartyPrincipal": {
+            "principalEmail": "user"
+          }
+        }          
+        }
+      ]
+    },
+```
 
 For more information, see  [Audit logs for service accounts ](https://cloud.google.com/iam/docs/audit-logging/examples-service-accounts#auth-as-service-account)
 

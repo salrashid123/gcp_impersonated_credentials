@@ -1,19 +1,36 @@
 
-const { IAMCredentialsClient } = require('@google-cloud/iam-credentials');
+const {GoogleAuth, Impersonated, IdTokenClient} = require('google-auth-library');
 
 async function main() {
 
   const targetCredentials = 'target-serviceaccount@fabled-ray-104117.iam.gserviceaccount.com'
 
-  const iam_client = new IAMCredentialsClient();
-  const [resp] = await iam_client.generateIdToken({
-    name: `projects/-/serviceAccounts/${targetCredentials}`,
-    audience: 'https://foo.bar',
-    includeEmail: true
+  const scopes = 'https://www.googleapis.com/auth/cloud-platform'
+  const auth =  new GoogleAuth({
+      scopes: scopes
   });
-  console.info(resp.token);
+  const client = await auth.getClient();
 
+  // First impersonate
+  let targetClient = new Impersonated({
+      sourceClient: client,
+      targetPrincipal: targetCredentials,
+      lifetime: 30,
+      delegates: [],
+      targetScopes: [scopes]
+  });
 
+  // then get an ID Token
+  let idClient = new IdTokenClient({
+      targetAudience: 'https://foo.bar',
+      idTokenProvider: targetClient
+  })
+
+  const res = await idClient.request({
+      method: 'GET',
+      url: 'https://httpbin.org/get',
+    });
+  console.log(res.data);
 
 }
 

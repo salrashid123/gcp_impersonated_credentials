@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {},
   "dependencies": {
-    "@google-cloud/iam-credentials": "^1.1.1",
+    "google-auth-library": "^8.3.0",
     "debug": "4.1.1"
   }
 }

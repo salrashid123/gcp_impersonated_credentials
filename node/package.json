@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "scripts": {},
   "dependencies": {
-    "@google-cloud/secret-manager": "^3.11.0",
-    "@google-cloud/storage": "^5.19.0",
+    "@google-cloud/secret-manager": "^4.0.0",
+    "@google-cloud/storage": "^6.4.1",
     "debug": "4.1.1",
-    "google-auth-library": "^v7.14.0"
+    "google-auth-library": "^v8.3.0"
   }
 }

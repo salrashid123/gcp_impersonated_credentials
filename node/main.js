@@ -27,7 +27,7 @@ async function main() {
 
 
   // use the impersonated creds to access secret manager
-
+  // #######  SecretManager 
   var AuthClient = function (client) {
     this._client = client;
   };
@@ -49,26 +49,15 @@ async function main() {
   console.info(`Payload: ${responsePayload}`);
 
 
-  // now construct workaround to use GCS client library
-  const oauth2Client = new OAuth2Client();
-  oauth2Client.refreshHandler = async () => {
-    const refreshedAccessToken = await targetClient.getAccessToken();
-    return {
-      access_token: refreshedAccessToken.token,
-      expiry_date: refreshedAccessToken.expirationTime,
-    };
-  };
-
-  // inject the oauth2client into the StorageOptions override
-  // for the access_token and the sign() override as well
+  // use the impersonated creds to access gcs
   const storageOptions = {
     projectId,
-    authClient: oauth2Client,
+    authClient: targetClient,
   };
 
   const storage = new Storage(storageOptions);
 
-  // use the gcs client to get an object
+  //#######  GCS   use the gcs client to get an object
   const file = storage.bucket(bucketName).file('foo.txt');
   await file.download(function (err, contents) {
     if (err) {
@@ -83,8 +72,26 @@ async function main() {
   const resp = await targetClient.request({ url });
   console.log(resp.data);
 
+  // ####### GCS SignedURL
+  // pending https://github.com/googleapis/google-auth-library-nodejs/issues/1443
 
-  // // then get an ID Token
+  //console.log(await targetClient.sign("dfasa"));
+
+  // const options = {
+  //   version: 'v4',
+  //   action: 'read',
+  //   expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+  // };
+
+  // const  su = await storage
+  //   .bucket(bucketName)
+  //   .file('foo.txt')
+  //   .getSignedUrl(options);
+
+  // console.log(su);
+
+
+  // #######  IDTOKEN // then get an ID Token
   let idClient = new IdTokenClient({
     targetAudience: 'https://foo.bar',
     idTokenProvider: targetClient
